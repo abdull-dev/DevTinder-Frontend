@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { User } from "../../types";
+import { resolvePhotoUrl } from "../../utils";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -27,7 +28,7 @@ function mapApiUserToUser(apiUser: ApiFeedUser): User {
     age: apiUser.age ?? 0,
     gender: apiUser.gender ?? "",
     title: apiUser.jobTitle ?? "",
-    avatarUrl: apiUser.photoURL ?? "",
+    avatarUrl: resolvePhotoUrl(apiUser.photoURL),
     isOnline: false,
     isVerified: false,
     isPremium: apiUser.isPremium ?? false,

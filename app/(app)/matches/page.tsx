@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { resolvePhotoUrl } from "../../lib/utils";
 import { MATCHES_PAGE } from "../../features/matches/components/MatchCard/constants";
 import { useAppDispatch, useAppSelector } from "../../lib/store/hooks";
 import { fetchMatches } from "../../lib/store/slices/matchesSlice";
@@ -60,7 +61,8 @@ function ApiMatchCard({ user, index }: { user: MatchUser; index: number }) {
   const displayName = user.age ? `${name}, ${user.age}` : name;
   const variant = VARIANT_COLORS[index % VARIANT_COLORS.length];
   const styles = VARIANT_STYLES[variant];
-  const hasImage = !!user.photoURL;
+  const resolvedPhoto = resolvePhotoUrl(user.photoURL);
+  const hasImage = !!resolvedPhoto;
 
   return (
     <article className="relative group rounded-[3rem] bg-white/60 backdrop-blur-xl border border-pink-100 shadow-[0_12px_40px_rgba(168,51,76,0.08)] overflow-hidden flex flex-col transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(255,117,140,0.2)]">
@@ -68,7 +70,7 @@ function ApiMatchCard({ user, index }: { user: MatchUser; index: number }) {
       <div className="relative aspect-[4/5] w-full overflow-hidden">
         {hasImage ? (
           <Image
-            src={user.photoURL!}
+            src={resolvedPhoto}
             alt={`Profile of ${name}`}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-110"

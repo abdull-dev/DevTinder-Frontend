@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ConnectsHeader } from "../../features/connects/components/ConnectsHeader/ConnectsHeader";
+import { resolvePhotoUrl } from "../../lib/utils";
 import { useAppDispatch, useAppSelector } from "../../lib/store/hooks";
 import {
   fetchReceived,
@@ -84,7 +85,7 @@ function UserAvatar({ user, size = "md" }: { user: ConnectUser; size?: "md" | "l
     <div className={`${dim} ${rounded} overflow-hidden border-2 border-primary-fixed ring-4 ring-primary-container/10 shrink-0`}>
       {user.photoURL ? (
         <Image
-          src={user.photoURL}
+          src={resolvePhotoUrl(user.photoURL)}
           alt={`${user.firstName} ${user.lastName}`}
           width={112}
           height={112}

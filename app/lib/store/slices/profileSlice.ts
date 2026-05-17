@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { ProfileData } from "../../types";
+import { resolvePhotoUrl } from "../../utils";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -48,14 +49,14 @@ function mapApiToProfile(api: ApiProfile): ProfileData {
     jobTitle: api.jobTitle ?? "",
     workplace: api.company ?? "",
     location: api.location ?? "",
-    avatarUrl: api.photoURL ?? "",
+    avatarUrl: resolvePhotoUrl(api.photoURL),
     bio: api.Description ?? "",
     isPremium: api.isPremium ?? false,
     premiumPlan: api.premiumPlan ?? null,
     premiumExpiresAt: api.premiumExpiresAt ?? null,
     photos: (api.gallery ?? []).map((url, i) => ({
       id: `gallery-${i}`,
-      url,
+      url: resolvePhotoUrl(url),
       alt: `Photo ${i + 1}`,
     })),
     techStack: (api.languages ?? []).map((lang, i) => ({
@@ -109,7 +110,7 @@ export const uploadProfilePhoto = createAsyncThunk<string, File, { rejectValue: 
       }
 
       const data = await res.json();
-      return data.photoURL as string;
+      return resolvePhotoUrl(data.photoURL as string);
     } catch {
       return rejectWithValue("Network error — is the server running?");
     }
@@ -136,7 +137,7 @@ export const uploadGalleryPhotos = createAsyncThunk<string[], File[], { rejectVa
       }
 
       const data = await res.json();
-      return data.gallery as string[];
+      return (data.gallery as string[]).map(resolvePhotoUrl);
     } catch {
       return rejectWithValue("Network error — is the server running?");
     }

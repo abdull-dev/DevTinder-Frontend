@@ -22,6 +22,7 @@ import {
 import type { ChatMessage } from "../../lib/store/slices/chatSlice";
 import { connectSocket, disconnectSocket } from "../../lib/socket";
 import type { MatchUser } from "../../lib/store/slices/matchesSlice";
+import { resolvePhotoUrl } from "../../lib/utils";
 
 function PremiumGate() {
   return (
@@ -190,7 +191,7 @@ function ChatContent() {
   const matchAvatars = matches.map((m) => ({
     id: m._id,
     name: m.firstName,
-    avatarUrl: m.photoURL || "",
+    avatarUrl: resolvePhotoUrl(m.photoURL),
     hasImage: !!m.photoURL,
   }));
 
@@ -199,7 +200,7 @@ function ChatContent() {
     user: {
       id: m._id,
       name: `${m.firstName} ${m.lastName}`,
-      avatarUrl: m.photoURL || "",
+      avatarUrl: resolvePhotoUrl(m.photoURL),
       isOnline: onlineUsers.includes(m._id),
     },
     lastMessage: "",
@@ -233,7 +234,7 @@ function ChatContent() {
             <ChatHeader
               name={`${activeMatch.firstName} ${activeMatch.lastName}`}
               role={activeMatch.jobTitle || "Developer"}
-              avatarUrl={activeMatch.photoURL || ""}
+              avatarUrl={resolvePhotoUrl(activeMatch.photoURL)}
               isOnline={onlineUsers.includes(activeMatch._id)}
               onBack={() => setActiveMatchId(null)}
             />
@@ -241,7 +242,7 @@ function ChatContent() {
               messages={uiMessages}
               currentUserId={currentUserId}
               partnerName={activeMatch.firstName}
-              partnerAvatarUrl={activeMatch.photoURL || ""}
+              partnerAvatarUrl={resolvePhotoUrl(activeMatch.photoURL)}
               matchedAt="Matched"
               isTyping={typingUsers.includes(activeMatch._id)}
             />
