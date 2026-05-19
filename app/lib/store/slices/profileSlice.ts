@@ -159,6 +159,8 @@ interface ProfileState {
   saving: boolean;
   saveError: string | null;
   saveSuccess: boolean;
+  uploading: boolean;
+  uploadError: string | null;
 }
 
 const initialState: ProfileState = {
@@ -169,6 +171,8 @@ const initialState: ProfileState = {
   saving: false,
   saveError: null,
   saveSuccess: false,
+  uploading: false,
+  uploadError: null,
 };
 
 export const fetchProfile = createAsyncThunk<ProfileData, void, { rejectValue: string }>(
@@ -281,13 +285,27 @@ const profileSlice = createSlice({
         state.snapshot = null;
       })
       // Upload profile photo
+      .addCase(uploadProfilePhoto.pending, (state) => {
+        state.uploading = true;
+        state.uploadError = null;
+      })
       .addCase(uploadProfilePhoto.fulfilled, (state, action) => {
+        state.uploading = false;
         if (state.profile) {
           state.profile.avatarUrl = action.payload;
         }
       })
+      .addCase(uploadProfilePhoto.rejected, (state, action) => {
+        state.uploading = false;
+        state.uploadError = action.payload ?? "Upload failed";
+      })
       // Upload gallery photos
+      .addCase(uploadGalleryPhotos.pending, (state) => {
+        state.uploading = true;
+        state.uploadError = null;
+      })
       .addCase(uploadGalleryPhotos.fulfilled, (state, action) => {
+        state.uploading = false;
         if (state.profile) {
           state.profile.photos = action.payload.map((url, i) => ({
             id: `gallery-${i}`,
@@ -295,6 +313,10 @@ const profileSlice = createSlice({
             alt: `Photo ${i + 1}`,
           }));
         }
+      })
+      .addCase(uploadGalleryPhotos.rejected, (state, action) => {
+        state.uploading = false;
+        state.uploadError = action.payload ?? "Upload failed";
       });
   },
 });

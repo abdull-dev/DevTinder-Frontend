@@ -190,7 +190,6 @@ export default function OnboardingPage() {
               alt={profile?.name || ""}
               width={56}
               height={56}
-              unoptimized
               className="w-full h-full object-cover"
             />
           </div>

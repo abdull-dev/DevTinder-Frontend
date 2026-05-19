@@ -47,13 +47,14 @@ function CheckIcon() {
 interface GalleryProps {
   photos: ProfilePhoto[];
   isEditing: boolean;
+  uploading?: boolean;
   onToggleEdit: () => void;
   onRemove: (photoId: string) => void;
   onUpload: (files: File[]) => void;
   maxPhotos?: number;
 }
 
-export function Gallery({ photos, isEditing, onToggleEdit, onRemove, onUpload, maxPhotos = 6 }: GalleryProps) {
+export function Gallery({ photos, isEditing, uploading, onToggleEdit, onRemove, onUpload, maxPhotos = 6 }: GalleryProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const emptySlots = maxPhotos - photos.length;
 
@@ -128,13 +129,23 @@ export function Gallery({ photos, isEditing, onToggleEdit, onRemove, onUpload, m
               }}
             />
             <button
-              onClick={() => fileInputRef.current?.click()}
-              className="relative aspect-[3/4] rounded-lg overflow-hidden border-2 border-dashed border-primary/30 bg-primary/5 flex flex-col items-center justify-center gap-2 hover:bg-primary/10 hover:border-primary/50 transition-colors cursor-pointer group"
+              onClick={() => !uploading && fileInputRef.current?.click()}
+              disabled={uploading}
+              className="relative aspect-[3/4] rounded-lg overflow-hidden border-2 border-dashed border-primary/30 bg-primary/5 flex flex-col items-center justify-center gap-2 hover:bg-primary/10 hover:border-primary/50 transition-colors cursor-pointer group disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center group-hover:scale-110 transition-transform">
-                <AddIcon />
-              </div>
-              <span className="text-xs text-primary/60 font-medium">Add Photo</span>
+              {uploading ? (
+                <>
+                  <div className="w-8 h-8 border-3 border-primary/20 border-t-primary rounded-full animate-spin" />
+                  <span className="text-xs text-primary/60 font-medium">Uploading...</span>
+                </>
+              ) : (
+                <>
+                  <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <AddIcon />
+                  </div>
+                  <span className="text-xs text-primary/60 font-medium">Add Photo</span>
+                </>
+              )}
             </button>
           </>
         )}

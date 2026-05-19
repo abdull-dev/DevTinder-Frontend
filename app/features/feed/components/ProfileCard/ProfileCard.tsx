@@ -88,7 +88,6 @@ export function ProfileCard({ user }: { user: User }) {
               src={user.avatarUrl}
               alt={user.name}
               fill
-              unoptimized
               className="object-cover pointer-events-none"
               sizes="(max-width: 768px) 100vw, 512px"
               priority

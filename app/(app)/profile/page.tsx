@@ -75,7 +75,7 @@ function ProfileSkeleton() {
 
 export default function ProfilePage() {
   const dispatch = useAppDispatch();
-  const { profile, loading, error, saving } = useAppSelector((s) => s.profile);
+  const { profile, loading, error, saving, uploading } = useAppSelector((s) => s.profile);
   const [editing, setEditing] = useState<EditSection>(null);
 
   useEffect(() => {
@@ -225,6 +225,7 @@ export default function ProfilePage() {
           <ProfileHero
             profile={profile}
             isEditing={editing === "hero"}
+            uploading={uploading}
             onToggleEdit={() => toggleEdit("hero")}
             onUpdate={handleUpdate}
             onAvatarUpload={handleAvatarUpload}
@@ -245,6 +246,7 @@ export default function ProfilePage() {
           <Gallery
             photos={profile.photos}
             isEditing={editing === "gallery"}
+            uploading={uploading}
             onToggleEdit={() => toggleEdit("gallery")}
             onRemove={handleRemovePhoto}
             onUpload={handleGalleryUpload}

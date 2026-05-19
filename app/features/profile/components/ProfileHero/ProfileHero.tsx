@@ -45,9 +45,10 @@ interface ProfileHeroProps {
   onToggleEdit: () => void;
   onUpdate: (fields: Partial<ProfileData>) => void;
   onAvatarUpload: (file: File) => void;
+  uploading?: boolean;
 }
 
-export function ProfileHero({ profile, isEditing, onToggleEdit, onUpdate, onAvatarUpload }: ProfileHeroProps) {
+export function ProfileHero({ profile, isEditing, onToggleEdit, onUpdate, onAvatarUpload, uploading }: ProfileHeroProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   return (
     <section className="backdrop-blur-[20px] bg-surface/60 rounded-xl p-6 border border-white/40 shadow-[0_10px_30px_rgba(255,117,140,0.15)] flex flex-col items-center relative overflow-hidden">
@@ -75,6 +76,11 @@ export function ProfileHero({ profile, isEditing, onToggleEdit, onUpdate, onAvat
           height={144}
           className="absolute inset-[3px] w-[calc(100%-6px)] h-[calc(100%-6px)] object-cover rounded-full"
         />
+        {uploading && (
+          <div className="absolute inset-[3px] rounded-full bg-black/40 flex items-center justify-center">
+            <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+          </div>
+        )}
         {isEditing && (
           <>
             <input

@@ -174,7 +174,6 @@ export function AppNavbar() {
                 alt={`${user.firstName} ${user.lastName}`}
                 width={40}
                 height={40}
-                unoptimized
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -323,7 +322,6 @@ export function AppNavbar() {
                           alt={`${notif.from.firstName} ${notif.from.lastName}`}
                           width={40}
                           height={40}
-                          unoptimized
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -407,7 +405,6 @@ export function AppNavbar() {
                       alt={`${user.firstName} ${user.lastName}`}
                       width={48}
                       height={48}
-                      unoptimized
                       className="w-full h-full object-cover"
                     />
                   ) : (

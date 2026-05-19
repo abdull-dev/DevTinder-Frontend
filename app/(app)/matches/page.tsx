@@ -73,7 +73,6 @@ function ApiMatchCard({ user, index }: { user: MatchUser; index: number }) {
             src={resolvedPhoto}
             alt={`Profile of ${name}`}
             fill
-            unoptimized
             className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
         ) : (

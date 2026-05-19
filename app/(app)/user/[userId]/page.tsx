@@ -190,7 +190,6 @@ function ImageViewer({
               alt={`Photo ${index + 1}`}
               width={1000}
               height={1000}
-              unoptimized
               className="object-contain max-h-[75vh] w-auto rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
             />
           </motion.div>
@@ -229,7 +228,6 @@ function ImageViewer({
                 alt={`Thumb ${i + 1}`}
                 width={64}
                 height={64}
-                unoptimized
                 className="w-full h-full object-cover"
               />
             </button>
@@ -384,7 +382,6 @@ export default function UserProfilePage() {
               src={photo}
               alt={name}
               fill
-              unoptimized
               className="object-cover"
             />
           ) : (
@@ -555,7 +552,6 @@ export default function UserProfilePage() {
                       src={url}
                       alt={`${name} photo ${i + 1}`}
                       fill
-                      unoptimized
                       className="object-cover"
                     />
                   </div>

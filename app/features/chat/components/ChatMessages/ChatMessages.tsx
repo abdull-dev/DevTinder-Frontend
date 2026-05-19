@@ -145,7 +145,6 @@ export function ChatMessages({
                   alt={partnerName}
                   width={32}
                   height={32}
-                  unoptimized
                   className="w-8 h-8 rounded-full object-cover self-end mb-1"
                 />
               ) : (
@@ -189,7 +188,6 @@ export function ChatMessages({
               alt={partnerName}
               width={32}
               height={32}
-              unoptimized
               className="w-8 h-8 rounded-full object-cover self-end mb-1"
             />
             <div className="bg-surface-container-high backdrop-blur-[10px] rounded-2xl rounded-bl-sm px-4 py-3 shadow-[0_4px_15px_rgba(0,0,0,0.03)] border border-white/50 flex items-center gap-1.5 w-16">

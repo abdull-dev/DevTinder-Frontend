@@ -1,4 +1,12 @@
 /**
+ * Check if an image URL is a local/relative upload that can't be optimized by Next.js
+ */
+export function isLocalUpload(url: string): boolean {
+  if (!url) return false;
+  return url.includes("/uploads/") || url.startsWith("data:");
+}
+
+/**
  * Resolves a photo URL from the backend.
  * - Full URLs (https://...) are returned as-is
  * - Relative paths like `/uploads/abc.jpg` are prefixed with the API base URL

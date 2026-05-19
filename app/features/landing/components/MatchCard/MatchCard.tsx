@@ -11,7 +11,6 @@ export function MatchCard() {
       {/* Profile image */}
       <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-4 border-surface shadow-[0_0_15px_rgba(255,117,140,0.3)] relative z-10">
         <Image
-          unoptimized
           src={mainImage}
           alt={MATCH_CARD.IMAGE_ALT}
           width={96}
