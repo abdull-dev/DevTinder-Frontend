@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import {
   motion,
   useMotionValue,
@@ -43,9 +43,11 @@ function SparkleSmall() {
 function SwipeCard({
   user,
   onSwipe,
+  exitDirection,
 }: {
   user: User;
   onSwipe: (dir: "left" | "right") => void;
+  exitDirection: "left" | "right";
 }) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-300, 0, 300], [-18, 0, 18]);
@@ -70,7 +72,7 @@ function SwipeCard({
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.9}
       onDragEnd={handleDragEnd}
-      exit={{ x: 500, opacity: 0, transition: { duration: 0.3 } }}
+      exit={{ x: exitDirection === "right" ? 500 : -500, opacity: 0, transition: { duration: 0.3 } }}
     >
       <ProfileCard user={user} />
 
@@ -125,6 +127,7 @@ function FeedSkeleton() {
 export function SwipeCardStack() {
   const dispatch = useAppDispatch();
   const { users, page, loading, error } = useAppSelector((s) => s.feed);
+  const lastSwipeDir = useRef<"left" | "right">("right");
 
   useEffect(() => {
     dispatch(fetchFeed({ page: 1 }));
@@ -134,6 +137,7 @@ export function SwipeCardStack() {
     (direction: "left" | "right") => {
       const topUser = users[0];
       if (!topUser) return;
+      lastSwipeDir.current = direction;
 
       // Send interested/ignored request
       const status = direction === "right" ? "interested" : "ignored";
@@ -243,6 +247,7 @@ export function SwipeCardStack() {
             key={users[0].id}
             user={users[0]}
             onSwipe={handleAction}
+            exitDirection={lastSwipeDir.current}
           />
         </AnimatePresence>
       </div>
