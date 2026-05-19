@@ -7,7 +7,7 @@ import { QUOTES } from "./constants";
 function QuoteIcon() {
   return (
     <svg
-      className="w-[120px] h-[120px] text-primary/10"
+      className="w-[120px] h-[120px] text-primary/15 dark:text-primary/25"
       viewBox="0 0 24 24"
       fill="currentColor"
     >
@@ -58,7 +58,7 @@ export function QuoteCard() {
   const quote = QUOTES[index];
 
   return (
-    <div className="md:col-span-2 glass-panel rounded-xl p-6 md:p-8 flex flex-col justify-center items-center text-center shadow-[0_10px_30px_rgba(255,117,140,0.15)] border-l-4 border-l-primary relative overflow-hidden">
+    <div className="md:col-span-2 glass-panel rounded-xl p-6 md:p-8 flex flex-col justify-center items-center text-center shadow-[0_10px_30px_rgba(255,117,140,0.15)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.3)] border-l-4 border-l-primary relative overflow-hidden">
       {/* Background quote mark */}
       <div className="absolute -top-4 -left-4">
         <QuoteIcon />
@@ -88,10 +88,10 @@ export function QuoteCard() {
             <h2 className="text-xl md:text-[28px] md:leading-[1.2] font-bold text-on-surface italic mb-3">
               {quote.text}
             </h2>
-            <div className="font-mono text-sm tracking-[0.02em] font-medium">
-              <span className="text-tertiary">{quote.code.keyword}</span>{" "}
-              <span className="text-secondary">{quote.code.variable}</span> ={" "}
-              <span className="text-primary-container">{quote.code.value}</span>
+            <div className="font-mono text-sm tracking-[0.02em] font-medium text-on-surface-variant">
+              <span className="text-on-surface-variant/70">{quote.code.keyword}</span>{" "}
+              <span className="text-on-surface">{quote.code.variable}</span> ={" "}
+              <span className="text-primary">{quote.code.value}</span>
               ;
             </div>
           </motion.div>
@@ -107,7 +107,7 @@ export function QuoteCard() {
             className={`rounded-full transition-all duration-300 cursor-pointer ${
               i === index
                 ? "w-6 h-2 bg-primary shadow-[0_0_8px_rgba(168,51,76,0.5)]"
-                : "w-2 h-2 bg-surface-variant hover:bg-outline-variant"
+                : "w-2 h-2 bg-on-surface-variant/30 hover:bg-on-surface-variant/50"
             }`}
           />
         ))}

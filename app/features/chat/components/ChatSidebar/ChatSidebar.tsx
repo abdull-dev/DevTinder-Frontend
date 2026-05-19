@@ -83,19 +83,24 @@ export function ChatSidebar({
                   : "hover:bg-surface-container-high/50"
               }`}
             >
-              {thread.user.avatarUrl ? (
-                <Image
-                  src={thread.user.avatarUrl}
-                  alt={thread.user.name}
-                  width={48}
-                  height={48}
-                  className="w-12 h-12 rounded-full object-cover shrink-0"
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant shrink-0">
-                  <PersonIcon />
-                </div>
-              )}
+              <div className="relative shrink-0">
+                {thread.user.avatarUrl ? (
+                  <Image
+                    src={thread.user.avatarUrl}
+                    alt={thread.user.name}
+                    width={48}
+                    height={48}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant">
+                    <PersonIcon />
+                  </div>
+                )}
+                {thread.user.isOnline && (
+                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-surface" />
+                )}
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center mb-0.5">
                   <span className="font-bold text-sm truncate">
@@ -106,7 +111,14 @@ export function ChatSidebar({
                   </span>
                 </div>
                 <p className={`text-xs truncate ${thread.isTyping ? "font-mono" : ""} text-on-surface-variant`}>
-                  {thread.isTyping ? "Typing..." : thread.lastMessage}
+                  {thread.isTyping ? "Typing..." : thread.lastMessage || (
+                    thread.user.isOnline ? (
+                      <span className="inline-flex items-center gap-1 text-green-500 font-medium">
+                        <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                        Online
+                      </span>
+                    ) : "Tap to chat"
+                  )}
                 </p>
               </div>
               {thread.unreadCount > 0 && (

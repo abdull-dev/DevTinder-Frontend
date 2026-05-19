@@ -14,11 +14,13 @@ interface ApiProfile {
   photoURL?: string;
   Description?: string;
   interests?: string[];
-  location?: string;
+  country?: string;
+  city?: string;
   jobTitle?: string;
   languages?: string[];
   company?: string;
   gallery?: string[];
+  profileComplete?: boolean;
   isPremium?: boolean;
   premiumPlan?: string | null;
   premiumExpiresAt?: string | null;
@@ -33,11 +35,13 @@ export interface ProfileEditPayload {
   photoURL?: string;
   Description?: string;
   interests?: string[];
-  location?: string;
+  country?: string;
+  city?: string;
   jobTitle?: string;
   languages?: string[];
   company?: string;
   gallery?: string[];
+  profileComplete?: boolean;
 }
 
 function mapApiToProfile(api: ApiProfile): ProfileData {
@@ -48,9 +52,11 @@ function mapApiToProfile(api: ApiProfile): ProfileData {
     gender: api.gender ?? "",
     jobTitle: api.jobTitle ?? "",
     workplace: api.company ?? "",
-    location: api.location ?? "",
+    country: api.country ?? "",
+    city: api.city ?? "",
     avatarUrl: resolvePhotoUrl(api.photoURL),
     bio: api.Description ?? "",
+    profileComplete: api.profileComplete ?? false,
     isPremium: api.isPremium ?? false,
     premiumPlan: api.premiumPlan ?? null,
     premiumExpiresAt: api.premiumExpiresAt ?? null,
@@ -82,7 +88,8 @@ export function mapProfileToApi(profile: ProfileData): ProfileEditPayload {
     photoURL: profile.avatarUrl,
     Description: profile.bio,
     interests: profile.interests.map((i) => i.label),
-    location: profile.location,
+    country: profile.country,
+    city: profile.city,
     jobTitle: profile.jobTitle,
     languages: profile.techStack.map((s) => s.label),
     company: profile.workplace,

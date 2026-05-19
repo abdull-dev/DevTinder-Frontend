@@ -15,7 +15,8 @@ interface ApiFeedUser {
   photoURL?: string;
   Description?: string;
   interests?: string[];
-  location?: string;
+  country?: string;
+  city?: string;
   jobTitle?: string;
   languages?: string[];
   isPremium?: boolean;
@@ -35,7 +36,8 @@ function mapApiUserToUser(apiUser: ApiFeedUser): User {
     bio: apiUser.Description ?? "",
     quote: "",
     work: apiUser.jobTitle ?? "",
-    location: apiUser.location ?? "",
+    country: apiUser.country ?? "",
+    city: apiUser.city ?? "",
     techStack: (apiUser.interests ?? []).map((interest) => ({
       label: interest,
       variant: "primary" as const,

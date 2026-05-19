@@ -17,7 +17,9 @@ export interface SignUpPayload {
   photo: File | null;
   Description: string;
   interests: string[];
-  location: string;
+  languages: string[];
+  country: string;
+  city: string;
 }
 
 interface AuthState {
@@ -107,8 +109,10 @@ export const signUp = createAsyncThunk<void, SignUpPayload, { rejectValue: strin
       fd.append("age", String(payload.age));
       fd.append("gender", payload.gender);
       fd.append("Description", payload.Description);
-      fd.append("location", payload.location);
+      fd.append("country", payload.country);
+      fd.append("city", payload.city);
       payload.interests.forEach((i) => fd.append("interests", i));
+      payload.languages.forEach((l) => fd.append("languages", l));
       if (payload.photo) {
         fd.append("photo", payload.photo);
       }

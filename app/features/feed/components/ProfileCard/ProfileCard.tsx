@@ -1,6 +1,13 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import type { User } from "../../../../lib/types";
 import { getTagStyle } from "./constants";
+
+const MAX_VISIBLE_TAGS = 3;
 
 function PremiumBadge() {
   return (
@@ -45,139 +52,209 @@ function PersonIcon({ className }: { className?: string } = {}) {
   );
 }
 
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+function CloseIcon() {
+  return (
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+    </svg>
+  );
 }
 
 export function ProfileCard({ user }: { user: User }) {
+  const [showAllTags, setShowAllTags] = useState(false);
+
   const hasImage = !!user.avatarUrl;
   const hasTitle = !!user.title;
   const hasBio = !!user.bio;
   const hasQuote = !!user.quote;
   const hasWork = !!user.work;
-  const hasLocation = !!user.location;
+  const locationStr = [user.city, user.country].filter(Boolean).join(", ");
+  const hasLocation = !!locationStr;
   const hasTechStack = user.techStack.length > 0;
   const hasGender = !!user.gender;
   const hasBadges = user.badges.length > 0;
   const hasDetails = hasBio || hasQuote || hasWork || hasLocation || hasTechStack || hasGender;
 
+  const visibleTags = user.techStack.slice(0, MAX_VISIBLE_TAGS);
+  const remainingCount = user.techStack.length - MAX_VISIBLE_TAGS;
+
   return (
-    <div className="h-full flex flex-col bg-white/70 backdrop-blur-xl rounded-[2rem] shadow-[0_8px_40px_rgba(168,51,76,0.08),0_2px_8px_rgba(0,0,0,0.04)] border border-white/60 overflow-hidden select-none">
-      {/* Image section */}
-      <div className={`relative ${hasDetails ? "flex-[3]" : "flex-[4]"} min-h-0 w-full`}>
-        {hasImage ? (
-          <Image
-            src={user.avatarUrl}
-            alt={user.name}
-            fill
-            className="object-cover pointer-events-none"
-            sizes="(max-width: 768px) 100vw, 512px"
-            priority
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/10 to-tertiary/20 flex items-center justify-center">
-            <div className="w-28 h-28 rounded-full bg-primary/15 flex items-center justify-center text-primary">
-              <div className="w-16 h-16">
-                <PersonIcon />
+    <>
+      <div className="h-full flex flex-col bg-white/70 backdrop-blur-xl rounded-[2rem] shadow-[0_8px_40px_rgba(168,51,76,0.08),0_2px_8px_rgba(0,0,0,0.04)] border border-white/60 overflow-hidden select-none">
+        {/* Image section */}
+        <div className={`relative ${hasDetails ? "flex-[3]" : "flex-[4]"} min-h-0 w-full`}>
+          {hasImage ? (
+            <Image
+              src={user.avatarUrl}
+              alt={user.name}
+              fill
+              unoptimized
+              className="object-cover pointer-events-none"
+              sizes="(max-width: 768px) 100vw, 512px"
+              priority
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/10 to-tertiary/20 flex items-center justify-center">
+              <div className="w-28 h-28 rounded-full bg-primary/15 flex items-center justify-center text-primary">
+                <div className="w-16 h-16">
+                  <PersonIcon />
+                </div>
               </div>
             </div>
-          </div>
-        )}
-
-        {user.isPremium && <PremiumBadge />}
-
-        {hasBadges && (
-          <div className="absolute top-4 left-4 flex gap-2 z-10">
-            {user.badges.map((badge) => (
-              <span
-                key={badge.label}
-                className={`px-4 py-1.5 rounded-full backdrop-blur-xl font-mono text-xs font-bold text-white border border-white/30 shadow-sm ${
-                  badge.variant === "primary" ? "bg-primary/50" : "bg-black/20"
-                }`}
-              >
-                {badge.label}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 px-6 pb-5 flex items-end justify-between">
-          <div>
-            <h2 className="text-[28px] md:text-[32px] leading-none font-extrabold text-white tracking-tight drop-shadow-lg">
-              {user.name}{user.age ? `, ${user.age}` : ""}
-            </h2>
-            {hasTitle && (
-              <p className="font-mono text-sm text-primary-fixed-dim mt-1 drop-shadow-md">
-                {user.title}
-              </p>
-            )}
-          </div>
-          {user.isVerified && (
-            <div className="bg-white/15 backdrop-blur-xl p-2 rounded-full border border-white/20 text-white/90 shadow-lg">
-              <VerifiedIcon />
-            </div>
           )}
-        </div>
-      </div>
 
-      {/* Content section — only render if there's something to show */}
-      {hasDetails && (
-        <div className="shrink-0 flex flex-col gap-3 px-6 py-5">
-          {hasTechStack && (
-            <div className="flex flex-wrap gap-2">
-              {user.techStack.map((tag) => (
+          {user.isPremium && <PremiumBadge />}
+
+          {hasBadges && (
+            <div className="absolute top-4 left-4 flex gap-2 z-10">
+              {user.badges.map((badge) => (
                 <span
-                  key={tag.label}
-                  className={`px-4 py-1.5 rounded-full border font-mono text-xs font-medium ${getTagStyle(tag.variant)}`}
+                  key={badge.label}
+                  className={`px-4 py-1.5 rounded-full backdrop-blur-xl font-mono text-xs font-bold text-white border border-white/30 shadow-sm ${
+                    badge.variant === "primary" ? "bg-primary/50" : "bg-black/20"
+                  }`}
                 >
-                  {tag.label}
+                  {badge.label}
                 </span>
               ))}
             </div>
           )}
 
-          {hasBio && (
-            <p className="text-on-surface-variant text-[15px] leading-relaxed line-clamp-2">
-              {user.bio}
-            </p>
-          )}
-
-          {hasQuote && (
-            <p className="text-on-surface-variant/50 font-mono text-xs italic line-clamp-1 -mt-1">
-              {user.quote}
-            </p>
-          )}
-
-          {(hasGender || hasWork || hasLocation) && (
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-on-surface-variant/70">
-              {hasGender && (
-                <span className="inline-flex items-center gap-1.5">
-                  <PersonIcon className="w-4 h-4 shrink-0" />
-                  <span className="font-mono text-xs capitalize">{user.gender}</span>
-                </span>
-              )}
-              {hasWork && (
-                <span className="inline-flex items-center gap-1.5">
-                  <WorkIcon />
-                  <span className="font-mono text-xs">{user.work}</span>
-                </span>
-              )}
-              {hasLocation && (
-                <span className="inline-flex items-center gap-1.5">
-                  <LocationIcon />
-                  <span className="font-mono text-xs">{user.location}</span>
-                </span>
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 px-6 pb-5 flex items-end justify-between">
+            <div>
+              <h2 className="text-[28px] md:text-[32px] leading-none font-extrabold text-white tracking-tight drop-shadow-lg">
+                {user.name}{user.age ? `, ${user.age}` : ""}
+              </h2>
+              {hasTitle && (
+                <p className="font-mono text-sm text-primary-fixed-dim mt-1 drop-shadow-md">
+                  {user.title}
+                </p>
               )}
             </div>
-          )}
+            <Link
+              href={`/user/${user.id}`}
+              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="bg-white/15 backdrop-blur-xl px-4 py-2 rounded-full border border-white/20 text-white/90 shadow-lg font-mono text-xs font-bold hover:bg-white/25 transition-colors cursor-pointer z-20"
+            >
+              View Profile
+            </Link>
+            {user.isVerified && (
+              <div className="bg-white/15 backdrop-blur-xl p-2 rounded-full border border-white/20 text-white/90 shadow-lg">
+                <VerifiedIcon />
+              </div>
+            )}
+          </div>
         </div>
-      )}
-    </div>
+
+        {/* Content section */}
+        {hasDetails && (
+          <div className="shrink-0 flex flex-col gap-3 px-6 py-5">
+            {hasTechStack && (
+              <div className="flex flex-wrap gap-2 items-center">
+                {visibleTags.map((tag) => (
+                  <span
+                    key={tag.label}
+                    className={`px-4 py-1.5 rounded-full border font-mono text-xs font-medium ${getTagStyle(tag.variant)}`}
+                  >
+                    {tag.label}
+                  </span>
+                ))}
+                {remainingCount > 0 && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setShowAllTags(true); }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    className="px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary font-mono text-xs font-bold hover:bg-primary/10 transition-colors cursor-pointer"
+                  >
+                    +{remainingCount}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {hasBio && (
+              <p className="text-on-surface-variant text-[15px] leading-relaxed line-clamp-2">
+                {user.bio}
+              </p>
+            )}
+
+            {hasQuote && (
+              <p className="text-on-surface-variant/50 font-mono text-xs italic line-clamp-1 -mt-1">
+                {user.quote}
+              </p>
+            )}
+
+            {(hasGender || hasWork || hasLocation) && (
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-on-surface-variant/70">
+                {hasGender && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <PersonIcon className="w-4 h-4 shrink-0" />
+                    <span className="font-mono text-xs capitalize">{user.gender}</span>
+                  </span>
+                )}
+                {hasWork && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <WorkIcon />
+                    <span className="font-mono text-xs">{user.work}</span>
+                  </span>
+                )}
+                {hasLocation && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <LocationIcon />
+                    <span className="font-mono text-xs">{locationStr}</span>
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* All Tags Dialog */}
+      <AnimatePresence>
+        {showAllTags && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+            onClick={() => setShowAllTags(false)}
+          >
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", stiffness: 350, damping: 28 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative bg-surface/95 backdrop-blur-xl rounded-2xl border border-outline-variant/30 shadow-[0_20px_60px_rgba(0,0,0,0.3)] w-full max-w-sm p-5"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-on-surface text-lg">
+                  {user.name}&apos;s Interests
+                </h3>
+                <button
+                  onClick={() => setShowAllTags(false)}
+                  className="w-8 h-8 rounded-full bg-surface-container-high/60 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
+                >
+                  <CloseIcon />
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {user.techStack.map((tag) => (
+                  <span
+                    key={tag.label}
+                    className={`px-4 py-2 rounded-full border font-mono text-xs font-medium ${getTagStyle(tag.variant)}`}
+                  >
+                    {tag.label}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

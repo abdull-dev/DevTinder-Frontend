@@ -73,6 +73,7 @@ function ApiMatchCard({ user, index }: { user: MatchUser; index: number }) {
             src={resolvedPhoto}
             alt={`Profile of ${name}`}
             fill
+            unoptimized
             className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
         ) : (
@@ -125,20 +126,28 @@ function ApiMatchCard({ user, index }: { user: MatchUser; index: number }) {
         )}
 
         {/* Location */}
-        {user.location && (
+        {(user.city || user.country) && (
           <p className="text-on-surface-variant/60 font-mono text-xs mb-4 line-clamp-1">
-            {user.location}
+            {[user.city, user.country].filter(Boolean).join(", ")}
           </p>
         )}
 
-        {/* CTA button */}
-        <Link
-          href="/chat"
-          className={`w-full mt-auto bg-gradient-to-r ${styles.btnGradient} text-white rounded-full py-3.5 flex items-center justify-center gap-2 font-bold ${styles.btnShadow} hover:scale-[1.03] transition-all duration-300`}
-        >
-          <ChatIcon />
-          <span>Chat with {user.firstName}</span>
-        </Link>
+        {/* CTA buttons */}
+        <div className="flex gap-2 mt-auto">
+          <Link
+            href={`/user/${user._id}`}
+            className="flex-1 bg-surface-container-high/50 border border-outline-variant/30 text-on-surface-variant rounded-full py-3.5 flex items-center justify-center font-bold text-sm hover:bg-surface-container-high/70 transition-all duration-300"
+          >
+            View Profile
+          </Link>
+          <Link
+            href="/chat"
+            className={`flex-1 bg-gradient-to-r ${styles.btnGradient} text-white rounded-full py-3.5 flex items-center justify-center gap-2 font-bold ${styles.btnShadow} hover:scale-[1.03] transition-all duration-300`}
+          >
+            <ChatIcon />
+            <span>Chat</span>
+          </Link>
+        </div>
       </div>
     </article>
   );

@@ -164,6 +164,21 @@ export default function ProfilePage() {
     [dispatch, profile]
   );
 
+  const handleAddInterest = useCallback(
+    (label: string) => {
+      if (!profile) return;
+      dispatch(
+        updateProfileLocal({
+          interests: [
+            ...profile.interests,
+            { id: `interest-${Date.now()}`, label, icon: "coffee" },
+          ],
+        })
+      );
+    },
+    [dispatch, profile]
+  );
+
   if (loading) {
     return <ProfileSkeleton />;
   }
@@ -250,6 +265,7 @@ export default function ProfilePage() {
               isEditing={editing === "interests"}
               onToggleEdit={() => toggleEdit("interests")}
               onRemove={handleRemoveInterest}
+              onAdd={handleAddInterest}
             />
           </motion.div>
         </div>

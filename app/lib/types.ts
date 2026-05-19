@@ -12,7 +12,8 @@ export interface User {
   bio: string;
   quote: string;
   work: string;
-  location: string;
+  country: string;
+  city: string;
   techStack: TechTag[];
   badges: Badge[];
 }
@@ -66,9 +67,11 @@ export interface ProfileData {
   gender: string;
   jobTitle: string;
   workplace: string;
-  location: string;
+  country: string;
+  city: string;
   avatarUrl: string;
   bio: string;
+  profileComplete: boolean;
   isPremium: boolean;
   premiumPlan: string | null;
   premiumExpiresAt: string | null;

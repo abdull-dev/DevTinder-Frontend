@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import type { AuthMode } from "../AuthCard/AuthCard";
@@ -73,6 +73,186 @@ function CloseSmallIcon({ className }: { className?: string }) {
   );
 }
 
+function ChevronDownIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className || "w-4 h-4"} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+    </svg>
+  );
+}
+
+function CheckSmallIcon() {
+  return (
+    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+    </svg>
+  );
+}
+
+function DropdownSelect({
+  label,
+  icon,
+  items,
+  selected,
+  setSelected,
+  accentColor = "primary",
+  placeholder = "Select...",
+}: {
+  label: string;
+  icon: React.ReactNode;
+  items: readonly string[];
+  selected: string[];
+  setSelected: React.Dispatch<React.SetStateAction<string[]>>;
+  accentColor?: "primary" | "secondary";
+  placeholder?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearch("");
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  useEffect(() => {
+    if (open && searchRef.current) searchRef.current.focus();
+  }, [open]);
+
+  const toggle = (item: string) => {
+    setSelected((prev) =>
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+    );
+  };
+
+  const remove = (item: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelected((prev) => prev.filter((i) => i !== item));
+  };
+
+  const filtered = search
+    ? items.filter((i) => i.toLowerCase().includes(search.toLowerCase()))
+    : items;
+
+  const isPrimary = accentColor === "primary";
+  const accentBg = isPrimary ? "bg-primary" : "bg-secondary";
+  const accentText = isPrimary ? "text-on-primary" : "text-on-secondary";
+  const accentBorder = isPrimary ? "border-primary" : "border-secondary";
+  const accentRing = isPrimary ? "ring-primary/15" : "ring-secondary/15";
+  const accentHover = isPrimary ? "hover:border-primary/30" : "hover:border-secondary/30";
+  const accentBadgeBg = isPrimary ? "bg-primary/10 text-primary border-primary/20" : "bg-secondary/10 text-secondary border-secondary/20";
+
+  return (
+    <div className="flex flex-col gap-1.5 relative" ref={ref}>
+      <label className={LABEL_CLASS}>
+        {label}
+        {selected.length > 0 && (
+          <span className={`ml-2 text-[10px] font-bold ${isPrimary ? "text-primary" : "text-secondary"} bg-surface-container-high/50 px-2 py-0.5 rounded-full`}>
+            {selected.length}
+          </span>
+        )}
+      </label>
+
+      {/* Trigger button */}
+      <button
+        type="button"
+        onClick={() => setOpen((p) => !p)}
+        className={`w-full bg-surface-container border ${
+          open ? `${accentBorder}/50 ring-4 ${accentRing}` : `border-transparent ${accentHover}`
+        } rounded-2xl px-4 py-2.5 text-left transition-all shadow-inner min-h-[48px] flex items-center gap-3 cursor-pointer group`}
+      >
+        <span className="text-on-surface-variant/40 shrink-0">{icon}</span>
+
+        {selected.length === 0 ? (
+          <span className="text-on-surface-variant/40 font-mono text-sm flex-1">{placeholder}</span>
+        ) : (
+          <div className="flex flex-wrap gap-1.5 flex-1">
+            {selected.slice(0, 4).map((item) => (
+              <span
+                key={item}
+                className={`inline-flex items-center gap-1 ${accentBadgeBg} border px-2.5 py-0.5 rounded-full text-[11px] font-bold`}
+              >
+                {item}
+                <button
+                  type="button"
+                  onClick={(e) => remove(item, e)}
+                  className="opacity-60 hover:opacity-100 cursor-pointer"
+                >
+                  <CloseSmallIcon className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
+            {selected.length > 4 && (
+              <span className={`${isPrimary ? "text-primary" : "text-secondary"} text-[11px] font-mono font-bold py-0.5`}>
+                +{selected.length - 4} more
+              </span>
+            )}
+          </div>
+        )}
+
+        <ChevronDownIcon className={`w-5 h-5 text-on-surface-variant/40 shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      {/* Dropdown panel */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+            className="absolute top-full left-0 right-0 z-50 mt-1 bg-surface/95 backdrop-blur-xl border border-outline-variant/30 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.15)] overflow-hidden"
+          >
+            {/* Search */}
+            <div className="px-3 pt-3 pb-2">
+              <input
+                ref={searchRef}
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search..."
+                className="w-full bg-surface-container-high/50 border-none rounded-xl px-3 py-2 text-on-surface text-xs outline-none placeholder:text-on-surface-variant/40 focus:ring-1 focus:ring-primary/20"
+              />
+            </div>
+
+            {/* Items */}
+            <div className="px-3 pb-3 max-h-[180px] overflow-y-auto flex flex-wrap gap-1.5">
+              {filtered.length === 0 && (
+                <p className="text-on-surface-variant/50 text-xs py-2 w-full text-center">No results</p>
+              )}
+              {filtered.map((item) => {
+                const sel = selected.includes(item);
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => toggle(item)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold font-mono tracking-wide transition-all cursor-pointer ${
+                      sel
+                        ? `${accentBg} ${accentText} shadow-sm`
+                        : `bg-surface-container-high/40 text-on-surface-variant hover:bg-surface-container-highest/60`
+                    }`}
+                  >
+                    {sel && <CheckSmallIcon />}
+                    {item}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function InterestsBadgeInput({
   interests,
   setInterests,
@@ -80,62 +260,38 @@ function InterestsBadgeInput({
   interests: string[];
   setInterests: React.Dispatch<React.SetStateAction<string[]>>;
 }) {
-  const c = AUTH_FORM.SIGNUP;
-  const [inputValue, setInputValue] = useState("");
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const trimmed = inputValue.trim();
-      if (trimmed && !interests.includes(trimmed)) {
-        setInterests((prev) => [...prev, trimmed]);
-      }
-      setInputValue("");
-    }
-    if (e.key === "Backspace" && inputValue === "" && interests.length > 0) {
-      setInterests((prev) => prev.slice(0, -1));
-    }
-  };
-
-  const removeInterest = (interest: string) => {
-    setInterests((prev) => prev.filter((i) => i !== interest));
-  };
-
+  const { ALL_INTERESTS } = require("../../../../lib/interests");
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className={LABEL_CLASS}>{c.INTERESTS_LABEL}</label>
-      <div className="relative">
-        <TagIcon className="w-4 h-4 absolute left-4 top-3 text-on-surface-variant/50" />
-        <div className="w-full bg-surface-container border border-transparent focus-within:border-secondary-fixed-dim/50 focus-within:ring-4 focus-within:ring-secondary-fixed-dim/20 focus-within:bg-surface text-on-surface font-mono text-sm tracking-[0.02em] font-medium rounded-2xl pl-12 pr-4 py-2 transition-all shadow-inner min-h-[44px] flex flex-wrap gap-1.5 items-center">
-          {interests.map((interest) => (
-            <span
-              key={interest}
-              className="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 px-2.5 py-1 rounded-full text-xs font-bold animate-in fade-in"
-            >
-              {interest}
-              <button
-                type="button"
-                onClick={() => removeInterest(interest)}
-                className="hover:bg-primary/20 rounded-full p-0.5 transition-colors cursor-pointer"
-              >
-                <CloseSmallIcon className="w-3 h-3" />
-              </button>
-            </span>
-          ))}
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={interests.length === 0 ? c.INTERESTS_PLACEHOLDER : "Add more..."}
-            className="flex-1 min-w-[80px] bg-transparent outline-none placeholder:text-on-surface-variant/40 py-1"
-          />
-        </div>
-      </div>
-      <p className="font-mono text-[10px] text-on-surface-variant/50 ml-4">
-        Press Enter to add
-      </p>
-    </div>
+    <DropdownSelect
+      label={AUTH_FORM.SIGNUP.INTERESTS_LABEL}
+      icon={<TagIcon className="w-4 h-4" />}
+      items={ALL_INTERESTS}
+      selected={interests}
+      setSelected={setInterests}
+      accentColor="primary"
+      placeholder="Select your interests..."
+    />
+  );
+}
+
+function LanguagesBadgeInput({
+  languages,
+  setLanguages,
+}: {
+  languages: string[];
+  setLanguages: React.Dispatch<React.SetStateAction<string[]>>;
+}) {
+  const { ALL_LANGUAGES } = require("../../../../lib/interests");
+  return (
+    <DropdownSelect
+      label="Programming Languages"
+      icon={<svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" /></svg>}
+      items={ALL_LANGUAGES}
+      selected={languages}
+      setSelected={setLanguages}
+      accentColor="secondary"
+      placeholder="Select languages you code in..."
+    />
   );
 }
 
@@ -191,11 +347,8 @@ function LocationSelect() {
           </select>
         </div>
       </div>
-      <input
-        type="hidden"
-        name="location"
-        value={city && selectedCountry ? `${city}, ${selectedCountry.name}` : ""}
-      />
+      <input type="hidden" name="country" value={selectedCountry?.name || ""} />
+      <input type="hidden" name="city" value={city} />
     </div>
   );
 }
@@ -203,12 +356,16 @@ function LocationSelect() {
 function SignUpForm({
   interests,
   setInterests,
+  languages,
+  setLanguages,
   photoPreview,
   setPhotoPreview,
   setPhotoFile,
 }: {
   interests: string[];
   setInterests: React.Dispatch<React.SetStateAction<string[]>>;
+  languages: string[];
+  setLanguages: React.Dispatch<React.SetStateAction<string[]>>;
   photoPreview: string | null;
   setPhotoPreview: React.Dispatch<React.SetStateAction<string | null>>;
   setPhotoFile: React.Dispatch<React.SetStateAction<File | null>>;
@@ -342,6 +499,9 @@ function SignUpForm({
       {/* Interests — badge input */}
       <InterestsBadgeInput interests={interests} setInterests={setInterests} />
 
+      {/* Languages — badge input */}
+      <LanguagesBadgeInput languages={languages} setLanguages={setLanguages} />
+
       {/* Location — country/city dropdowns */}
       <LocationSelect />
     </>
@@ -359,6 +519,7 @@ export function AuthForm({
   const dispatch = useAppDispatch();
   const { loading, error, signUpSuccess, signInSuccess } = useAppSelector((s) => s.auth);
   const [interests, setInterests] = useState<string[]>([]);
+  const [languages, setLanguages] = useState<string[]>([]);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
@@ -413,7 +574,9 @@ export function AuthForm({
         photo: photoFile,
         Description: (fd.get("Description") as string) || "",
         interests,
-        location: (fd.get("location") as string) || "",
+        languages,
+        country: (fd.get("country") as string) || "",
+        city: (fd.get("city") as string) || "",
       })
     );
   }
@@ -426,6 +589,8 @@ export function AuthForm({
         <SignUpForm
           interests={interests}
           setInterests={setInterests}
+          languages={languages}
+          setLanguages={setLanguages}
           photoPreview={photoPreview}
           setPhotoPreview={setPhotoPreview}
           setPhotoFile={setPhotoFile}

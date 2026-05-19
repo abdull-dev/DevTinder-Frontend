@@ -25,9 +25,9 @@ export function Navbar() {
 
   return (
     <header className="flex justify-between items-center px-6 h-16 w-full fixed top-0 z-50 bg-surface/30 backdrop-blur-[20px] border-b border-white/20 shadow-[0_4px_20px_rgba(168,51,76,0.15)]">
-      <div className="text-xl sm:text-[28px] leading-[1.2] font-extrabold text-primary drop-shadow-[0_0_8px_rgba(168,51,76,0.4)]">
+      <Link href="/" className="text-xl sm:text-[28px] leading-[1.2] font-extrabold text-primary drop-shadow-[0_0_8px_rgba(168,51,76,0.4)]">
         {NAVBAR.BRAND_NAME}
-      </div>
+      </Link>
       <div className="flex items-center gap-2 sm:gap-4">
         <button
           onClick={toggleTheme}

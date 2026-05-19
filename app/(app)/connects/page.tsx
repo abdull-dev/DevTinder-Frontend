@@ -30,7 +30,7 @@ const cardVariants = {
     y: 0,
     transition: { type: "spring" as const, stiffness: 260, damping: 22, delay: i * 0.08 },
   }),
-  exit: { opacity: 0, scale: 0.85, x: -100, transition: { duration: 0.3 } },
+  exit: { opacity: 0, scale: 0.9, x: -80, transition: { duration: 0.15, ease: "easeIn" as const } },
 };
 
 // ── Icons ──
@@ -155,10 +155,10 @@ function ReceivedCard({
           </div>
         )}
 
-        {user.location && (
+        {(user.city || user.country) && (
           <p className="inline-flex items-center gap-1 text-on-surface-variant/60 font-mono text-xs mt-2">
             <LocationIcon />
-            {user.location}
+            {[user.city, user.country].filter(Boolean).join(", ")}
           </p>
         )}
 
@@ -203,10 +203,10 @@ function SentCard({ request, onCancel }: { request: ConnectRequest; onCancel: ()
         {user.jobTitle && (
           <p className="font-mono text-xs text-secondary mt-0.5 truncate">{user.jobTitle}</p>
         )}
-        {user.location && (
+        {(user.city || user.country) && (
           <p className="inline-flex items-center gap-1 text-on-surface-variant/60 font-mono text-[11px] mt-1">
             <LocationIcon />
-            {user.location}
+            {[user.city, user.country].filter(Boolean).join(", ")}
           </p>
         )}
       </div>

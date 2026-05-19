@@ -1,28 +1,8 @@
-import { io, Socket } from "socket.io-client";
+import io from "socket.io-client";
+import { BASE_URL } from "./constants";
 
-let socket: Socket | null = null;
-
-export function getSocket(): Socket {
-  if (!socket) {
-    socket = io(process.env.NEXT_PUBLIC_API_BASE_URL!, {
-      withCredentials: true,
-      autoConnect: false,
-    });
-  }
-  return socket;
-}
-
-export function connectSocket(): Socket {
-  const s = getSocket();
-  if (!s.connected) {
-    s.connect();
-  }
-  return s;
-}
-
-export function disconnectSocket() {
-  if (socket) {
-    socket.disconnect();
-    socket = null;
-  }
-}
+export const createSocketConnection = () => {
+  return io(BASE_URL, {
+    withCredentials: true,
+  });
+};

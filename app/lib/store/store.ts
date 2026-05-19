@@ -6,7 +6,6 @@ import connectsReducer from "./slices/connectsSlice";
 import settingsReducer from "./slices/settingsSlice";
 import profileReducer from "./slices/profileSlice";
 import premiumReducer from "./slices/premiumSlice";
-import chatReducer from "./slices/chatSlice";
 
 export const makeStore = () =>
   configureStore({
@@ -18,7 +17,6 @@ export const makeStore = () =>
       settings: settingsReducer,
       profile: profileReducer,
       premium: premiumReducer,
-      chat: chatReducer,
     },
   });
 

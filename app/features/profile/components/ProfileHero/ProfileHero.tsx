@@ -172,13 +172,23 @@ export function ProfileHero({ profile, isEditing, onToggleEdit, onUpdate, onAvat
         <div className="flex items-center justify-center gap-1 text-on-surface-variant text-sm">
           <LocationIcon />
           {isEditing ? (
-            <input
-              className="w-auto min-w-[140px] text-center bg-surface-container-low border border-outline-variant/30 rounded-lg px-2 py-1 text-sm focus:ring-0 outline-none focus:border-primary/40"
-              value={profile.location}
-              onChange={(e) => onUpdate({ location: e.target.value })}
-            />
+            <div className="flex items-center gap-2">
+              <input
+                className="w-28 text-center bg-surface-container-low border border-outline-variant/30 rounded-lg px-2 py-1 text-sm focus:ring-0 outline-none focus:border-primary/40"
+                value={profile.city}
+                onChange={(e) => onUpdate({ city: e.target.value })}
+                placeholder="City"
+              />
+              <span className="text-on-surface-variant/40">,</span>
+              <input
+                className="w-28 text-center bg-surface-container-low border border-outline-variant/30 rounded-lg px-2 py-1 text-sm focus:ring-0 outline-none focus:border-primary/40"
+                value={profile.country}
+                onChange={(e) => onUpdate({ country: e.target.value })}
+                placeholder="Country"
+              />
+            </div>
           ) : (
-            <span>{profile.location}</span>
+            <span>{[profile.city, profile.country].filter(Boolean).join(", ") || "Add location"}</span>
           )}
         </div>
       </div>

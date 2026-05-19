@@ -1,27 +1,60 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { BASE_URL } from "../lib/constants";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [status, setStatus] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
+  const pathname = usePathname();
+  const [status, setStatus] = useState<"loading" | "authenticated" | "unauthenticated" | "incomplete">("loading");
 
-  useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/profile/view`, { credentials: "include" })
-      .then((res) => {
-        setStatus(res.ok ? "authenticated" : "unauthenticated");
+  const checkAuth = useCallback(() => {
+    setStatus("loading");
+    fetch(`${BASE_URL}/profile/view`, { credentials: "include" })
+      .then(async (res) => {
+        if (!res.ok) {
+          setStatus("unauthenticated");
+          return;
+        }
+        const data = await res.json();
+        const user = data.user ?? data.data ?? data;
+        const needsOnboarding =
+          !user.age ||
+          !user.gender ||
+          !user.country ||
+          !user.city ||
+          !user.interests ||
+          user.interests.length === 0 ||
+          !user.languages ||
+          user.languages.length === 0;
+        if (needsOnboarding) {
+          setStatus("incomplete");
+        } else {
+          setStatus("authenticated");
+        }
       })
       .catch(() => {
         setStatus("unauthenticated");
       });
   }, []);
 
+  // Check auth on mount and when pathname changes (e.g. after onboarding completes)
+  useEffect(() => {
+    checkAuth();
+  }, [pathname, checkAuth]);
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.replace("/auth");
     }
-  }, [status, router]);
+    if (status === "incomplete" && pathname !== "/onboarding") {
+      router.replace("/onboarding");
+    }
+    if (status === "authenticated" && pathname === "/onboarding") {
+      router.replace("/feed");
+    }
+  }, [status, router, pathname]);
 
   if (status === "loading") {
     return (
@@ -37,6 +70,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   if (status === "unauthenticated") return null;
+  if (status === "incomplete" && pathname !== "/onboarding") return null;
 
   return <>{children}</>;
 }

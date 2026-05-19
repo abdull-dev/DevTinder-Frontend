@@ -11,7 +11,8 @@ export interface ConnectUser {
   photoURL?: string;
   Description?: string;
   interests?: string[];
-  location?: string;
+  country?: string;
+  city?: string;
   jobTitle?: string;
 }
 

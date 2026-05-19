@@ -4,6 +4,7 @@ import { BottomNav } from "../features/app-shell/components/BottomNav/BottomNav"
 import { PageTransition } from "../features/app-shell/components/PageTransition/PageTransition";
 import { FloatingParticles } from "../features/app-shell/components/FloatingParticles/FloatingParticles";
 import AuthGuard from "./AuthGuard";
+import SocketWrapper from "./SocketWrapper";
 
 export default function AppLayout({
   children,
@@ -12,6 +13,7 @@ export default function AppLayout({
 }) {
   return (
     <AuthGuard>
+    <SocketWrapper>
     <div className="bg-feed-gradient min-h-screen relative">
       {/* Breathing background blobs */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
@@ -29,6 +31,7 @@ export default function AppLayout({
       </div>
       <BottomNav />
     </div>
+    </SocketWrapper>
     </AuthGuard>
   );
 }

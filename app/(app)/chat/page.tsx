@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { ChatSidebar } from "../../features/chat/components/ChatSidebar/ChatSidebar";
 import { ChatHeader } from "../../features/chat/components/ChatHeader/ChatHeader";
@@ -9,20 +9,12 @@ import { ChatInput } from "../../features/chat/components/ChatInput/ChatInput";
 import type { Message, ChatThread } from "../../lib/types";
 import { useAppDispatch, useAppSelector } from "../../lib/store/hooks";
 import { fetchPremiumStatus } from "../../lib/store/slices/premiumSlice";
-import { fetchMatches } from "../../lib/store/slices/matchesSlice";
 import { fetchProfile } from "../../lib/store/slices/profileSlice";
-import {
-  fetchChatHistory,
-  addMessage,
-  setUserOnline,
-  setUserOffline,
-  setUserTyping,
-  clearUserTyping,
-} from "../../lib/store/slices/chatSlice";
-import type { ChatMessage } from "../../lib/store/slices/chatSlice";
-import { connectSocket, disconnectSocket } from "../../lib/socket";
+import { fetchMatches } from "../../lib/store/slices/matchesSlice";
 import type { MatchUser } from "../../lib/store/slices/matchesSlice";
+import { useSocket } from "../../lib/SocketProvider";
 import { resolvePhotoUrl } from "../../lib/utils";
+import { BASE_URL } from "../../lib/constants";
 
 function PremiumGate() {
   return (
@@ -92,102 +84,146 @@ function NoMatchesState() {
   );
 }
 
-// Map backend ChatMessage to frontend Message type
-function mapToUIMessage(msg: ChatMessage): Message {
-  return {
-    id: msg._id,
-    senderId: msg.senderId,
-    text: msg.text,
-    timestamp: new Date(msg.createdAt).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
-    status: "delivered",
-  };
-}
-
 function ChatContent() {
   const dispatch = useAppDispatch();
-  const { matches } = useAppSelector((s) => s.matches);
-  const { messages, typingUsers, onlineUsers } = useAppSelector((s) => s.chat);
-  const { profile } = useAppSelector((s) => s.profile);
+  const { profile, loading: profileLoading } = useAppSelector((s) => s.profile);
+  const { matches, loading: matchesLoading } = useAppSelector((s) => s.matches);
+  const { socket: globalSocket, onlineUsers, refetchNotifications, unmatchedBy, clearUnmatched } = useSocket();
 
   const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
-  const socketRef = useRef<ReturnType<typeof connectSocket> | null>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [messagesByMatch, setMessagesByMatch] = useState<Record<string, Message[]>>({});
+  const [loadingMessages, setLoadingMessages] = useState(false);
 
   const currentUserId = profile?.id || "";
 
-  // Connect socket and set up listeners
+  // Fetch profile and matches
   useEffect(() => {
-    dispatch(fetchMatches());
     dispatch(fetchProfile());
-
-    const socket = connectSocket();
-    socketRef.current = socket;
-
-    socket.on("receiveMessage", (msg: ChatMessage) => {
-      dispatch(addMessage(msg));
-    });
-
-    socket.on("userOnline", (userId: string) => {
-      dispatch(setUserOnline(userId));
-    });
-
-    socket.on("userOffline", (userId: string) => {
-      dispatch(setUserOffline(userId));
-    });
-
-    socket.on("userTyping", ({ senderId }: { senderId: string }) => {
-      dispatch(setUserTyping(senderId));
-    });
-
-    socket.on("userStopTyping", ({ senderId }: { senderId: string }) => {
-      dispatch(clearUserTyping(senderId));
-    });
-
-    return () => {
-      disconnectSocket();
-    };
+    dispatch(fetchMatches());
   }, [dispatch]);
 
-  // Load message history when active match changes
+  // Handle unmatch — if the other user unmatched us, clear chat and refetch matches
   useEffect(() => {
-    if (activeMatchId) {
-      dispatch(fetchChatHistory(activeMatchId));
+    if (!unmatchedBy) return;
+
+    // If we're chatting with the person who unmatched us, close the chat
+    if (activeMatchId === unmatchedBy) {
+      setActiveMatchId(null);
     }
-  }, [activeMatchId, dispatch]);
+
+    // Remove their messages
+    setMessagesByMatch((prev) => {
+      const next = { ...prev };
+      delete next[unmatchedBy];
+      return next;
+    });
+
+    // Refetch matches to remove them from sidebar
+    dispatch(fetchMatches());
+    clearUnmatched();
+  }, [unmatchedBy, activeMatchId, dispatch, clearUnmatched]);
+
+  // Fetch chat history and mark messages as read
+  useEffect(() => {
+    if (!activeMatchId) return;
+    setLoadingMessages(true);
+    fetch(`${BASE_URL}/chat/${activeMatchId}`, { credentials: "include" })
+      .then((res) => res.json())
+      .then((msgs) => {
+        const mapped: Message[] = msgs.map((m: { _id: string; senderId: string; text: string; createdAt: string }) => ({
+          id: m._id,
+          senderId: m.senderId,
+          text: m.text,
+          timestamp: new Date(m.createdAt).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          status: "read" as const,
+        }));
+        setMessagesByMatch((prev) => ({ ...prev, [activeMatchId]: mapped }));
+      })
+      .catch(() => {})
+      .finally(() => setLoadingMessages(false));
+
+    // Mark messages from this user as read, then refresh notification count
+    fetch(`${BASE_URL}/notifications/messages/read/${activeMatchId}`, {
+      method: "POST",
+      credentials: "include",
+    })
+      .then(() => refetchNotifications())
+      .catch(() => {});
+  }, [activeMatchId, refetchNotifications]);
+
+  // Use global socket for chat — join room and listen for messages
+  useEffect(() => {
+    if (!profile?.id || !activeMatchId || !globalSocket) return;
+
+    globalSocket.emit("joinChat", {
+      userId: profile.id,
+      targetUserId: activeMatchId,
+    });
+
+    const handleMessage = ({ message, senderId }: { message: string; senderId: string }) => {
+      if (senderId !== profile.id) {
+        const newMsg: Message = {
+          id: `msg-${Date.now()}`,
+          senderId,
+          text: message,
+          timestamp: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          status: "delivered",
+        };
+        setMessagesByMatch((prev) => ({
+          ...prev,
+          [activeMatchId]: [...(prev[activeMatchId] || []), newMsg],
+        }));
+      }
+    };
+
+    globalSocket.on("receivedMessage", handleMessage);
+
+    return () => {
+      globalSocket.off("receivedMessage", handleMessage);
+    };
+  }, [profile?.id, activeMatchId, globalSocket]);
 
   const activeMatch = matches.find((m) => m._id === activeMatchId);
+  const activeMessages = activeMatchId ? messagesByMatch[activeMatchId] || [] : [];
 
   const handleSend = useCallback(
     (text: string) => {
-      if (!activeMatchId || !socketRef.current) return;
+      if (!activeMatchId || !profile?.id || !globalSocket) return;
 
-      socketRef.current.emit(
-        "sendMessage",
-        { receiverId: activeMatchId, text },
-        (response: { success?: boolean; message?: ChatMessage; error?: string }) => {
-          if (response.success && response.message) {
-            dispatch(addMessage(response.message));
-          }
-        }
-      );
+      const newMsg: Message = {
+        id: `msg-${Date.now()}`,
+        senderId: profile.id,
+        text,
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        status: "sent",
+      };
+
+      // Add to local state immediately
+      setMessagesByMatch((prev) => ({
+        ...prev,
+        [activeMatchId]: [...(prev[activeMatchId] || []), newMsg],
+      }));
+
+      // Send via global socket
+      globalSocket.emit("sendMessage", {
+        userId: profile.id,
+        targetUserId: activeMatchId,
+        text,
+      });
     },
-    [activeMatchId, dispatch]
+    [activeMatchId, profile?.id, globalSocket]
   );
 
-  const handleTyping = useCallback(() => {
-    if (!activeMatchId || !socketRef.current) return;
-    socketRef.current.emit("typing", { receiverId: activeMatchId });
-
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = setTimeout(() => {
-      socketRef.current?.emit("stopTyping", { receiverId: activeMatchId });
-    }, 2000);
-  }, [activeMatchId]);
-
-  // Build sidebar data from matches
+  // Build sidebar data from real matches
   const matchAvatars = matches.map((m) => ({
     id: m._id,
     name: m.firstName,
@@ -201,15 +237,24 @@ function ChatContent() {
       id: m._id,
       name: `${m.firstName} ${m.lastName}`,
       avatarUrl: resolvePhotoUrl(m.photoURL),
-      isOnline: onlineUsers.includes(m._id),
+      isOnline: onlineUsers.has(m._id),
     },
     lastMessage: "",
     lastMessageTime: "",
-    isTyping: typingUsers.includes(m._id),
+    isTyping: false,
     unreadCount: 0,
   }));
 
-  const uiMessages: Message[] = messages.map(mapToUIMessage);
+  if (profileLoading || matchesLoading) {
+    return (
+      <div className="flex w-[calc(100%+24px)] sm:w-[calc(100%+48px)] h-full -mx-3 -mt-3 sm:-mx-6 sm:-mt-6 overflow-hidden items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+          <p className="text-on-surface-variant/60 font-mono text-sm">Loading chats...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (matches.length === 0) {
     return (
@@ -235,18 +280,24 @@ function ChatContent() {
               name={`${activeMatch.firstName} ${activeMatch.lastName}`}
               role={activeMatch.jobTitle || "Developer"}
               avatarUrl={resolvePhotoUrl(activeMatch.photoURL)}
-              isOnline={onlineUsers.includes(activeMatch._id)}
+              isOnline={onlineUsers.has(activeMatch._id)}
               onBack={() => setActiveMatchId(null)}
             />
-            <ChatMessages
-              messages={uiMessages}
-              currentUserId={currentUserId}
-              partnerName={activeMatch.firstName}
-              partnerAvatarUrl={resolvePhotoUrl(activeMatch.photoURL)}
-              matchedAt="Matched"
-              isTyping={typingUsers.includes(activeMatch._id)}
-            />
-            <ChatInput onSend={handleSend} onTyping={handleTyping} />
+            {loadingMessages ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="w-8 h-8 border-3 border-primary/20 border-t-primary rounded-full animate-spin" />
+              </div>
+            ) : (
+              <ChatMessages
+                messages={activeMessages}
+                currentUserId={currentUserId}
+                partnerName={activeMatch.firstName}
+                partnerAvatarUrl={resolvePhotoUrl(activeMatch.photoURL)}
+                matchedAt="Matched"
+                isTyping={false}
+              />
+            )}
+            <ChatInput onSend={handleSend} />
           </>
         ) : (
           <EmptyChatState />
