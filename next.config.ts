@@ -16,14 +16,15 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
     return [
       {
         source: "/api/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/:path*`,
+        destination: `${apiBase}/:path*`,
       },
       {
         source: "/uploads/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/uploads/:path*`,
+        destination: `${apiBase}/uploads/:path*`,
       },
     ];
   },
