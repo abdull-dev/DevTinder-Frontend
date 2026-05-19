@@ -96,11 +96,11 @@ function ChatContent() {
 
   const currentUserId = profile?.id || "";
 
-  // Fetch profile and matches
+  // Fetch matches (profile already fetched by SocketWrapper)
   useEffect(() => {
-    dispatch(fetchProfile());
+    if (!profile) dispatch(fetchProfile());
     dispatch(fetchMatches());
-  }, [dispatch]);
+  }, [dispatch, profile]);
 
   // Handle unmatch — if the other user unmatched us, clear chat and refetch matches
   useEffect(() => {

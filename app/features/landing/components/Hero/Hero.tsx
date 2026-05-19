@@ -50,7 +50,7 @@ export function Hero() {
       <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
         <Link
           href={HERO.CTA_HREF}
-          className="bg-primary text-on-primary font-bold py-3 md:py-4 px-8 rounded-full shadow-[0_10px_30px_rgba(255,117,140,0.4)] hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center gap-2"
+          className="bg-primary text-on-primary font-bold py-3 md:py-4 px-5 sm:px-8 rounded-full shadow-[0_10px_30px_rgba(255,117,140,0.4)] hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center gap-2"
         >
           <HeartIcon />
           {HERO.CTA_PRIMARY}

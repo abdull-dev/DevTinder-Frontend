@@ -40,8 +40,8 @@ export function ChatHeader({
   onBack,
 }: ChatHeaderProps) {
   return (
-    <header className="flex justify-between items-center px-6 h-20 w-full bg-surface/40 backdrop-blur-[24px] border-b border-white/30 shadow-[0_4px_20px_rgba(255,117,140,0.1)] shrink-0">
-      <div className="flex items-center gap-4">
+    <header className="flex justify-between items-center px-3 sm:px-6 h-16 sm:h-20 w-full bg-surface/40 backdrop-blur-[24px] border-b border-white/30 shadow-[0_4px_20px_rgba(255,117,140,0.1)] shrink-0">
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
         <button
           onClick={onBack}
           className="w-10 h-10 rounded-full bg-surface-container-high/50 flex items-center justify-center text-on-surface-variant hover:bg-primary-container/20 hover:text-primary transition-colors cursor-pointer"
@@ -62,7 +62,7 @@ export function ChatHeader({
             )}
           </div>
           <div>
-            <h1 className="text-[20px] font-bold text-on-surface leading-tight">
+            <h1 className="text-base sm:text-[20px] font-bold text-on-surface leading-tight truncate max-w-[150px] sm:max-w-none">
               {name}
             </h1>
             <p className="font-mono text-xs text-on-surface-variant/70 flex items-center gap-1.5">

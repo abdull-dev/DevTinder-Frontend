@@ -172,16 +172,16 @@ export function ProfileHero({ profile, isEditing, onToggleEdit, onUpdate, onAvat
         <div className="flex items-center justify-center gap-1 text-on-surface-variant text-sm">
           <LocationIcon />
           {isEditing ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <input
-                className="w-28 text-center bg-surface-container-low border border-outline-variant/30 rounded-lg px-2 py-1 text-sm focus:ring-0 outline-none focus:border-primary/40"
+                className="w-20 sm:w-28 text-center bg-surface-container-low border border-outline-variant/30 rounded-lg px-1.5 sm:px-2 py-1 text-xs sm:text-sm focus:ring-0 outline-none focus:border-primary/40"
                 value={profile.city}
                 onChange={(e) => onUpdate({ city: e.target.value })}
                 placeholder="City"
               />
               <span className="text-on-surface-variant/40">,</span>
               <input
-                className="w-28 text-center bg-surface-container-low border border-outline-variant/30 rounded-lg px-2 py-1 text-sm focus:ring-0 outline-none focus:border-primary/40"
+                className="w-20 sm:w-28 text-center bg-surface-container-low border border-outline-variant/30 rounded-lg px-1.5 sm:px-2 py-1 text-xs sm:text-sm focus:ring-0 outline-none focus:border-primary/40"
                 value={profile.country}
                 onChange={(e) => onUpdate({ country: e.target.value })}
                 placeholder="Country"

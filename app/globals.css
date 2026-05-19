@@ -71,6 +71,7 @@
    SMOOTH THEME TRANSITION
    ═══════════════════════════════════════════ */
 
+/* Smooth theme transition */
 html {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -81,9 +82,9 @@ html *::after {
   transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.15s ease;
 }
 
-/* Exclude animations/transforms from transition to avoid jank */
-html img, html video, html svg, html canvas,
-html [class*="animate-"], html [class*="transition-transform"] {
+/* Exclude heavy elements from transition to avoid jank */
+html img, html video, html canvas,
+html [class*="animate-"] {
   transition: none !important;
 }
 

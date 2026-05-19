@@ -544,7 +544,7 @@ export default function UserProfilePage() {
           {gallery.length > 0 && (
             <div>
               <h3 className="font-bold text-on-surface mb-2">Photos</h3>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {gallery.map((url, i) => (
                   <div
                     key={i}

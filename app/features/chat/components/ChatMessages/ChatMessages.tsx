@@ -107,7 +107,7 @@ export function ChatMessages({
                 animate="animate"
                 transition={messageTransition}
                 layout
-                className="flex gap-3 max-w-[85%] self-end group justify-end"
+                className="flex gap-3 max-w-[90%] sm:max-w-[85%] self-end group justify-end"
               >
                 <div className="relative flex flex-col items-end">
                   <div className="bg-primary/90 text-on-primary rounded-2xl rounded-br-sm px-5 py-3 shadow-[0_4px_15px_rgba(168,51,76,0.2)] border border-primary-fixed-dim/30 w-full">
@@ -137,7 +137,7 @@ export function ChatMessages({
               animate="animate"
               transition={messageTransition}
               layout
-              className="flex gap-3 max-w-[85%] self-start group"
+              className="flex gap-3 max-w-[90%] sm:max-w-[85%] self-start group"
             >
               {showAvatar ? (
                 <Image
@@ -182,7 +182,7 @@ export function ChatMessages({
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: -20, scale: 0.9 }}
             transition={messageTransition}
-            className="flex gap-3 max-w-[85%] self-start mt-2"
+            className="flex gap-3 max-w-[90%] sm:max-w-[85%] self-start mt-2"
           >
             <Image
               src={partnerAvatarUrl}

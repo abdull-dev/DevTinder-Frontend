@@ -53,14 +53,20 @@ export function SocketProvider({
   const [totalUnread, setTotalUnread] = useState(0);
   const [unmatchedBy, setUnmatchedBy] = useState<string | null>(null);
 
+  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const fetchNotifications = useCallback(() => {
-    fetch(`${BASE_URL}/notifications`, { credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => {
-        setNotifications(data.notifications || []);
-        setTotalUnread(data.totalUnread || 0);
-      })
-      .catch(() => {});
+    // Debounce — prevent multiple rapid fetches
+    if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+    fetchTimeoutRef.current = setTimeout(() => {
+      fetch(`${BASE_URL}/notifications`, { credentials: "include" })
+        .then((res) => res.json())
+        .then((data) => {
+          setNotifications(data.notifications || []);
+          setTotalUnread(data.totalUnread || 0);
+        })
+        .catch(() => {});
+    }, 300);
   }, []);
 
   useEffect(() => {

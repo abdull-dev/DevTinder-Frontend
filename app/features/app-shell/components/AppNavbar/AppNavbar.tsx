@@ -4,8 +4,10 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { APP_NAVBAR } from "./constants";
-import { SearchIcon, NotificationsIcon } from "../icons";
+import { MOBILE_MENU_ITEMS } from "../BottomNav/constants";
+import { SearchIcon, NotificationsIcon, ExploreIcon, ChatIcon, GroupIcon, TerminalIcon, PersonIcon, SettingsIcon, CrownIcon } from "../icons";
 import { useTheme } from "../../../../lib/ThemeProvider";
 import { useSocket } from "../../../../lib/SocketProvider";
 import { BASE_URL } from "../../../../lib/constants";
@@ -27,13 +29,6 @@ function MoonIcon({ className }: { className?: string }) {
   );
 }
 
-function PersonIcon() {
-  return (
-    <svg className="w-full h-full" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-    </svg>
-  );
-}
 
 function CloseIcon({ className }: { className?: string }) {
   return (
@@ -86,10 +81,21 @@ export function AppNavbar() {
   const [showResults, setShowResults] = useState(false);
   const [searching, setSearching] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  const MENU_ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
+    explore: ExploreIcon, chat: ChatIcon, group: GroupIcon,
+    terminal: TerminalIcon, person: PersonIcon, settings: SettingsIcon, crown: CrownIcon,
+  };
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   const doSearch = useCallback((q: string) => {
     if (!q.trim()) {
@@ -199,12 +205,25 @@ export function AppNavbar() {
   return (
     <>
       <header className="flex justify-between items-center px-3 sm:px-6 h-14 sm:h-16 w-full fixed top-0 z-50 bg-surface/30 backdrop-blur-[20px] border-b border-white/20 shadow-[0_4px_20px_rgba(168,51,76,0.15)]">
-        {/* Brand */}
-        <Link href="/feed" className="flex items-center gap-4">
-          <span className="text-xl sm:text-[28px] leading-[1.2] font-extrabold text-primary drop-shadow-[0_0_8px_rgba(168,51,76,0.4)]">
-            {APP_NAVBAR.BRAND_NAME}
-          </span>
-        </Link>
+        {/* Mobile menu + Brand */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setMobileMenuOpen((p) => !p)}
+            className="md:hidden p-2 rounded-full hover:bg-primary-container/20 transition-all active:scale-95 cursor-pointer"
+          >
+            <svg className="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="currentColor">
+              {mobileMenuOpen
+                ? <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                : <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+              }
+            </svg>
+          </button>
+          <Link href="/feed">
+            <span className="text-xl sm:text-[28px] leading-[1.2] font-extrabold text-primary drop-shadow-[0_0_8px_rgba(168,51,76,0.4)]">
+              {APP_NAVBAR.BRAND_NAME}
+            </span>
+          </Link>
+        </div>
 
         {/* Search bar - desktop */}
         <div className="hidden md:flex flex-1 max-w-xl px-12 relative" ref={searchRef}>
@@ -416,6 +435,53 @@ export function AppNavbar() {
           </div>
         </div>
       )}
+
+      {/* Mobile slide-out menu */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="md:hidden fixed inset-0 z-[150] bg-black/40 backdrop-blur-sm"
+              style={{ top: "3.5rem" }}
+            />
+            {/* Drawer */}
+            <motion.nav
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", stiffness: 350, damping: 30 }}
+              className="md:hidden fixed left-0 z-[160] w-64 bg-surface/95 backdrop-blur-xl border-r border-outline-variant/20 shadow-[4px_0_30px_rgba(0,0,0,0.15)] overflow-y-auto"
+              style={{ top: "3.5rem", bottom: 0 }}
+            >
+              <div className="flex flex-col py-4">
+                {MOBILE_MENU_ITEMS.map((item) => {
+                  const Icon = MENU_ICON_MAP[item.icon];
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.key}
+                      href={item.href}
+                      className={`flex items-center gap-3 px-5 py-3.5 transition-colors ${
+                        isActive
+                          ? "bg-primary-container/30 text-primary border-r-2 border-primary"
+                          : "text-on-surface-variant hover:bg-surface-container-high/50 hover:text-on-surface"
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="font-mono text-sm font-medium">{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </motion.nav>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }

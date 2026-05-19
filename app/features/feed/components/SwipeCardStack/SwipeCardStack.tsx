@@ -254,7 +254,7 @@ export function SwipeCardStack() {
 
       {/* Action buttons */}
       <motion.div
-        className="shrink-0 flex items-center justify-center gap-10 py-4"
+        className="shrink-0 flex items-center justify-center gap-6 sm:gap-10 py-3 sm:py-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 20 }}
@@ -262,7 +262,7 @@ export function SwipeCardStack() {
         <motion.button
           aria-label="Pass"
           onClick={onReject}
-          className="w-[68px] h-[68px] rounded-full bg-white/90 backdrop-blur-sm shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex items-center justify-center border-2 border-outline-variant/30 text-on-surface-variant/50 hover:border-error/50 hover:text-error hover:shadow-[0_8px_28px_rgba(186,26,26,0.15)] transition-colors cursor-pointer"
+          className="w-14 h-14 sm:w-[68px] sm:h-[68px] rounded-full bg-white/90 backdrop-blur-sm shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex items-center justify-center border-2 border-outline-variant/30 text-on-surface-variant/50 hover:border-error/50 hover:text-error hover:shadow-[0_8px_28px_rgba(186,26,26,0.15)] transition-colors cursor-pointer"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >
@@ -272,7 +272,7 @@ export function SwipeCardStack() {
         <motion.button
           aria-label="Connect"
           onClick={onAccept}
-          className="w-[68px] h-[68px] rounded-full gradient-romantic shadow-[0_6px_24px_rgba(168,51,76,0.35)] flex items-center justify-center text-white cursor-pointer relative"
+          className="w-14 h-14 sm:w-[68px] sm:h-[68px] rounded-full gradient-romantic shadow-[0_6px_24px_rgba(168,51,76,0.35)] flex items-center justify-center text-white cursor-pointer relative"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >

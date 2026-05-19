@@ -184,7 +184,7 @@ export default function MatchesPage() {
   return (
     <div className="w-full max-w-[1400px] mx-auto">
       <div className="mb-12 text-center">
-        <h1 className="text-[28px] md:text-[32px] leading-[1.2] font-bold text-primary mb-2 drop-shadow-[0_2px_10px_rgba(168,51,76,0.2)]">
+        <h1 className="text-xl sm:text-[28px] md:text-[32px] leading-[1.2] font-bold text-primary mb-2 drop-shadow-[0_2px_10px_rgba(168,51,76,0.2)]">
           {MATCHES_PAGE.HEADING}
         </h1>
         <p className="text-on-surface-variant max-w-md mx-auto">

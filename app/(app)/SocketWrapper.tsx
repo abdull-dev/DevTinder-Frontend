@@ -2,20 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { SocketProvider } from "../lib/SocketProvider";
-import { BASE_URL } from "../lib/constants";
+import { useAppDispatch, useAppSelector } from "../lib/store/hooks";
+import { fetchProfile } from "../lib/store/slices/profileSlice";
 
 export default function SocketWrapper({ children }: { children: React.ReactNode }) {
-  const [userId, setUserId] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const { profile } = useAppSelector((s) => s.profile);
 
+  // Fetch profile once — this is used by socket AND other pages
   useEffect(() => {
-    fetch(`${BASE_URL}/profile/view`, { credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => {
-        const user = data.user ?? data.data ?? data;
-        setUserId(user?._id || null);
-      })
-      .catch(() => {});
-  }, []);
+    if (!profile) dispatch(fetchProfile());
+  }, [dispatch, profile]);
 
-  return <SocketProvider userId={userId}>{children}</SocketProvider>;
+  return <SocketProvider userId={profile?.id || null}>{children}</SocketProvider>;
 }

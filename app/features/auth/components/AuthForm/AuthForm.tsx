@@ -375,7 +375,7 @@ function SignUpForm({
   return (
     <>
       {/* First Name & Last Name — side by side */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <label className={LABEL_CLASS}>{c.FIRST_NAME_LABEL}</label>
           <div className="relative">
@@ -411,7 +411,7 @@ function SignUpForm({
       </div>
 
       {/* Age & Gender — side by side */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <label className={LABEL_CLASS}>{c.AGE_LABEL}</label>
           <div className="relative">
@@ -438,7 +438,7 @@ function SignUpForm({
       <div className="flex flex-col gap-1.5">
         <label className={LABEL_CLASS}>{c.PHOTO_URL_LABEL}</label>
         <label className="group cursor-pointer">
-          <div className="w-full bg-surface-container border-2 border-dashed border-on-surface-variant/20 hover:border-primary/40 rounded-2xl py-5 flex flex-col items-center gap-2 transition-all">
+          <div className="w-full bg-surface-container border-2 border-dashed border-on-surface-variant/20 hover:border-primary/40 rounded-2xl py-3 sm:py-5 flex flex-col items-center gap-2 transition-all">
             {photoPreview ? (
               <div className="relative">
                 <img

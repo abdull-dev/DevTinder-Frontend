@@ -118,7 +118,7 @@ function ReceivedCard({
   const name = `${user.firstName} ${user.lastName}`;
 
   return (
-    <article className="bg-surface/40 backdrop-blur-[24px] border-[0.5px] border-white/60 rounded-[32px] p-6 shadow-[0_12px_40px_rgba(255,117,140,0.15)] flex flex-col sm:flex-row gap-6 relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_16px_50px_rgba(255,117,140,0.25)] transition-all duration-500">
+    <article className="bg-surface/40 backdrop-blur-[24px] border-[0.5px] border-white/60 rounded-[32px] p-4 sm:p-6 shadow-[0_12px_40px_rgba(255,117,140,0.15)] flex flex-col sm:flex-row gap-6 relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_16px_50px_rgba(255,117,140,0.25)] transition-all duration-500">
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary-container/20 rounded-full blur-[40px] pointer-events-none -z-10 group-hover:bg-primary-container/30 transition-colors" />
 
       <div className="shrink-0">
@@ -126,7 +126,7 @@ function ReceivedCard({
       </div>
 
       <div className="flex flex-col flex-grow justify-center">
-        <h2 className="text-xl sm:text-[28px] leading-[1.2] font-bold text-on-surface">
+        <h2 className="text-xl sm:text-[28px] leading-[1.2] font-bold text-on-surface truncate">
           {name}{user.age ? `, ${user.age}` : ""}
         </h2>
 
@@ -193,7 +193,7 @@ function SentCard({ request, onCancel }: { request: ConnectRequest; onCancel: ()
   const isInterested = request.status === "interested";
 
   return (
-    <article className="bg-surface/40 backdrop-blur-[24px] border-[0.5px] border-white/60 rounded-[32px] p-5 shadow-[0_8px_30px_rgba(115,54,205,0.08)] flex items-center gap-5 relative overflow-hidden hover:-translate-y-0.5 hover:shadow-[0_12px_36px_rgba(115,54,205,0.15)] transition-all duration-500">
+    <article className="bg-surface/40 backdrop-blur-[24px] border-[0.5px] border-white/60 rounded-[32px] p-3 sm:p-5 shadow-[0_8px_30px_rgba(115,54,205,0.08)] flex items-center gap-5 relative overflow-hidden hover:-translate-y-0.5 hover:shadow-[0_12px_36px_rgba(115,54,205,0.15)] transition-all duration-500">
       <UserAvatar user={user} />
 
       <div className="flex-grow min-w-0">

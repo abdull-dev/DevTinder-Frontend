@@ -4,13 +4,15 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { BASE_URL } from "../lib/constants";
 
+type AuthStatus = "loading" | "authenticated" | "unauthenticated" | "incomplete";
+
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [status, setStatus] = useState<"loading" | "authenticated" | "unauthenticated" | "incomplete">("loading");
+  const [status, setStatus] = useState<AuthStatus>("loading");
+  const [checked, setChecked] = useState(false);
 
   const checkAuth = useCallback(() => {
-    setStatus("loading");
     fetch(`${BASE_URL}/profile/view`, { credentials: "include" })
       .then(async (res) => {
         if (!res.ok) {
@@ -28,43 +30,43 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           user.interests.length === 0 ||
           !user.languages ||
           user.languages.length === 0;
-        if (needsOnboarding) {
-          setStatus("incomplete");
-        } else {
-          setStatus("authenticated");
-        }
+        setStatus(needsOnboarding ? "incomplete" : "authenticated");
       })
-      .catch(() => {
-        setStatus("unauthenticated");
-      });
+      .catch(() => setStatus("unauthenticated"))
+      .finally(() => setChecked(true));
   }, []);
 
-  // Check auth on mount and when pathname changes (e.g. after onboarding completes)
+  // Check auth only on mount
   useEffect(() => {
     checkAuth();
-  }, [pathname, checkAuth]);
+  }, [checkAuth]);
+
+  // Re-check only when navigating FROM onboarding (user just completed it)
+  useEffect(() => {
+    if (checked && status === "incomplete" && pathname !== "/onboarding") {
+      // User navigated away from onboarding — re-check if profile is now complete
+      checkAuth();
+    }
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    if (!checked) return;
     if (status === "unauthenticated") {
       router.replace("/auth");
-    }
-    if (status === "incomplete" && pathname !== "/onboarding") {
+    } else if (status === "incomplete" && pathname !== "/onboarding") {
       router.replace("/onboarding");
-    }
-    if (status === "authenticated" && pathname === "/onboarding") {
+    } else if (status === "authenticated" && pathname === "/onboarding") {
       router.replace("/feed");
     }
-  }, [status, router, pathname]);
+  }, [status, checked, router, pathname]);
 
-  if (status === "loading") {
+  if (!checked || status === "loading") {
     return (
       <div className="h-screen flex items-center justify-center bg-feed-gradient">
-        <div className="flex flex-col items-center gap-3">
-          <svg className="w-10 h-10 text-primary animate-spin" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-        </div>
+        <svg className="w-10 h-10 text-primary animate-spin" viewBox="0 0 24 24" fill="none">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
       </div>
     );
   }

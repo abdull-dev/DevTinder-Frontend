@@ -310,7 +310,7 @@ export default function PremiumPage() {
           )}
           <h3 className="text-lg font-bold text-on-surface mb-1">Monthly</h3>
           <div className="flex items-baseline gap-1 mb-3">
-            <span className="text-4xl font-extrabold text-on-surface">Rs 500</span>
+            <span className="text-2xl sm:text-4xl font-extrabold text-on-surface">Rs 500</span>
             <span className="text-on-surface-variant text-sm">/month</span>
           </div>
           <p className="text-on-surface-variant text-sm">
@@ -341,7 +341,7 @@ export default function PremiumPage() {
           )}
           <h3 className="text-lg font-bold text-on-surface mb-1 mt-4">Yearly</h3>
           <div className="flex items-baseline gap-1 mb-3">
-            <span className="text-4xl font-extrabold text-on-surface">Rs 4,000</span>
+            <span className="text-2xl sm:text-4xl font-extrabold text-on-surface">Rs 4,000</span>
             <span className="text-on-surface-variant text-sm">/year</span>
           </div>
           <p className="text-on-surface-variant text-sm">

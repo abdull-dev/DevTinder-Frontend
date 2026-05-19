@@ -25,7 +25,7 @@ export default function AppLayout({
       <AppNavbar />
       <div className="flex pt-14 sm:pt-16 h-screen">
         <Sidebar />
-        <main className="flex-1 flex flex-col items-center justify-start px-3 pt-3 sm:px-6 sm:pt-6 pb-20 md:pb-8 overflow-y-auto min-h-0">
+        <main className="flex-1 flex flex-col items-center justify-start px-3 pt-3 sm:px-6 sm:pt-6 pb-6 md:pb-8 overflow-y-auto min-h-0">
           <PageTransition>{children}</PageTransition>
         </main>
       </div>
