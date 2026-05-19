@@ -187,10 +187,16 @@ function ReceivedCard({
 // ── Sent Card ──
 
 function SentCard({ request, onCancel }: { request: ConnectRequest; onCancel: () => void }) {
+  const [cancelling, setCancelling] = useState(false);
   const user = getUser(request.toUserId);
   if (!user) return null;
   const name = `${user.firstName} ${user.lastName}`;
   const isInterested = request.status === "interested";
+
+  const handleCancel = () => {
+    setCancelling(true);
+    onCancel();
+  };
 
   return (
     <article className="bg-surface/40 backdrop-blur-[24px] border-[0.5px] border-white/60 rounded-[32px] p-3 sm:p-5 shadow-[0_8px_30px_rgba(115,54,205,0.08)] flex items-center gap-5 relative overflow-hidden hover:-translate-y-0.5 hover:shadow-[0_12px_36px_rgba(115,54,205,0.15)] transition-all duration-500">
@@ -213,17 +219,27 @@ function SentCard({ request, onCancel }: { request: ConnectRequest; onCancel: ()
 
       {isInterested ? (
         <button
-          onClick={onCancel}
-          className="shrink-0 group/btn flex items-center gap-2 px-4 py-2 rounded-full bg-secondary-container/30 border border-secondary-container/40 text-on-secondary-container font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:bg-error-container/40 hover:border-error/40 hover:text-error"
+          onClick={handleCancel}
+          disabled={cancelling}
+          className="shrink-0 group/btn flex items-center gap-2 px-4 py-2 rounded-full bg-secondary-container/30 border border-secondary-container/40 text-on-secondary-container font-mono text-xs font-medium cursor-pointer transition-all duration-200 hover:bg-error-container/40 hover:border-error/40 hover:text-error disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-secondary-container/30 disabled:hover:text-on-secondary-container"
         >
-          <span className="group-hover/btn:hidden flex items-center gap-2">
-            <SendIcon />
-            Sent
-          </span>
-          <span className="hidden group-hover/btn:flex items-center gap-2">
-            <CloseIcon />
-            Cancel
-          </span>
+          {cancelling ? (
+            <span className="flex items-center gap-2">
+              <div className="w-3.5 h-3.5 border-2 border-on-secondary-container/30 border-t-on-secondary-container rounded-full animate-spin" />
+              Cancelling...
+            </span>
+          ) : (
+            <>
+              <span className="group-hover/btn:hidden flex items-center gap-2">
+                <SendIcon />
+                Sent
+              </span>
+              <span className="hidden group-hover/btn:flex items-center gap-2">
+                <CloseIcon />
+                Cancel
+              </span>
+            </>
+          )}
         </button>
       ) : (
         <div className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-secondary-container/30 border border-secondary-container/40 text-on-secondary-container font-mono text-xs font-medium capitalize">
